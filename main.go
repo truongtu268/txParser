@@ -31,6 +31,10 @@ func NewTxParser() *TxParser {
 }
 
 func (parser *TxParser) GetCurrentBlock() int64 {
+	return parser.currentBlock
+}
+
+func (parser *TxParser) GetETHCurrentBlock() int64 {
 	resByte, _ := callToEth(GetCurrentBlock, defaultParams)
 	res := &GetCurrentBlockResponse{}
 	_ = json.Unmarshal(resByte, &res)
@@ -50,14 +54,14 @@ func (parser *TxParser) Subscribe(address string) bool {
 }
 
 func (parser *TxParser) collectTransactions() {
-	blockNo := parser.GetCurrentBlock()
+	blockNo := parser.GetETHCurrentBlock()
 
 	preHash, sourceTrans, _ := parser.getTransactionByNumber(blockNo)
 	parser.filterTransByAddress(sourceTrans)
 	if preHash == "" {
 		return
 	}
-	if blockNo == parser.currentBlock {
+	if blockNo == parser.GetCurrentBlock() {
 		return
 	}
 	for preHash != "" {
